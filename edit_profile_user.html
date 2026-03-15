@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile | Corn Disease Detection</title>
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --healthy: #5d9e47;
+      --disease: #e74c3c;
+      --warning: #f39c12;
+      --background: #f5f9f2;
+      --card-bg: #ffffff;
+      --text-dark: #2c3e2c;
+      --text-light: #5a6c5a;
+      --border: #d4e6d1;
+      --highlight: #8bc34a;
+      --corn-yellow: #fff176;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: var(--background);
+      color: var(--text-dark);
+      line-height: 1.6;
+      background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M30,10 Q50,5 70,10 T90,30 Q95,50 90,70 T70,90 Q50,95 30,90 T10,70 Q5,50 10,30 T30,10" fill="none" stroke="%23d4e6d1" stroke-width="0.5"/></svg>');
+      background-size: 100px 100px;
+      min-height: 100vh;
+      padding-top: 70px;
+    }
+
+    /* Corn field background pattern */
+    .corn-pattern {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(to bottom, 
+          transparent 95%, 
+          rgba(139, 195, 74, 0.05) 100%);
+      background-size: 100% 30px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Animated corn plants */
+    .corn-plant {
+      position: fixed;
+      width: 40px;
+      height: 80px;
+      background: transparent;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%235d9e47"><path d="M12 2L4 12l8 10 8-10-8-10zm0 15.5L7 12l5-5.5 5 5.5-5 5.5z"/></svg>');
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: -1;
+      opacity: 0.15;
+    }
+
+    .plant-1 { bottom: 0; left: 10%; height: 120px; }
+    .plant-2 { bottom: 0; left: 25%; height: 90px; }
+    .plant-3 { bottom: 0; left: 40%; height: 110px; }
+    .plant-4 { bottom: 0; left: 55%; height: 100px; }
+    .plant-5 { bottom: 0; left: 70%; height: 130px; }
+    .plant-6 { bottom: 0; left: 85%; height: 80px; }
+
+    nav {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-dark);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .logo {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      color: var(--healthy);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+    }
+
+    nav .logo i {
+      color: var(--highlight);
+    }
+
+    nav a {
+      color: var(--text-dark);
+      text-decoration: none;
+      font-weight: 500;
+      margin-right: 1.5rem;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+    }
+
+    nav a:hover {
+      color: var(--healthy);
+      background-color: rgba(93, 158, 71, 0.1);
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 2.5rem;
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--healthy);
+    }
+
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--healthy);
+      margin-bottom: 1.5rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      width: 50px;
+      height: 3px;
+      background: var(--healthy);
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 3px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: var(--text-dark);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="file"] {
+      padding: 0.75rem 1rem;
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+      color: var(--text-dark);
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      outline: none;
+      border-color: var(--healthy);
+      box-shadow: 0 0 0 3px rgba(93, 158, 71, 0.2);
+    }
+
+    button {
+      padding: 0.875rem;
+      background: var(--healthy);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button:hover {
+      background: #4d8e3a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(93, 158, 71, 0.2);
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    .back-link a {
+      color: var(--healthy);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-link a:hover {
+      color: #4d8e3a;
+    }
+
+    .profile-img-preview {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-img-preview img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 0.75rem;
+      border: 3px solid var(--healthy);
+      box-shadow: 0 4px 8px rgba(93, 158, 71, 0.1);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-input-label {
+      display: block;
+      padding: 0.75rem;
+      background: var(--background);
+      border: 1px dashed var(--border);
+      border-radius: 0.5rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .file-input-label:hover {
+      background: rgba(93, 158, 71, 0.05);
+      border-color: var(--healthy);
+    }
+
+    .file-input-label i {
+      margin-right: 0.5rem;
+      color: var(--healthy);
+    }
+
+    .status-message {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .success {
+      background-color: rgba(93, 158, 71, 0.1);
+      color: var(--healthy);
+      border-left: 4px solid var(--healthy);
+      display: block;
+    }
+
+    .error {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: var(--disease);
+      border-left: 4px solid var(--disease);
+      display: block;
+    }
+
+    /* Flash messages */
+    .flash-messages {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      width: auto;
+      max-width: 300px;
+    }
+    
+    .flash-message {
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      opacity: 0.95;
+      animation: fadeIn 0.5s ease;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255,255,255,0.2);
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .flash-message.success { 
+      background: rgba(93, 158, 71, 0.9);
+      border-left: 4px solid var(--healthy);
+    }
+    
+    .flash-message.error { 
+      background: rgba(231, 76, 60, 0.9);
+      border-left: 4px solid var(--disease);
+    }
+    
+    .flash-message.warning { 
+      background: rgba(243, 156, 18, 0.9);
+      border-left: 4px solid var(--warning);
+    }
+    
+    .flash-message.info { 
+      background: rgba(52, 152, 219, 0.9);
+      border-left: 4px solid var(--info);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 0.95; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      nav a {
+        margin-right: 0;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .container {
+        padding: 1.5rem;
+        margin: 1.5rem auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.25rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Corn field background elements -->
+  <div class="corn-pattern"></div>
+  <div class="corn-plant plant-1"></div>
+  <div class="corn-plant plant-2"></div>
+  <div class="corn-plant plant-3"></div>
+  <div class="corn-plant plant-4"></div>
+  <div class="corn-plant plant-5"></div>
+  <div class="corn-plant plant-6"></div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Navbar - same as dashboard_user.html -->
+  <nav data-aos="fade-down">
+    <div class="logo"><i class="fas fa-leaf"></i> CORN DISEASE DETECTION</div>
+    <div>
+      <a href="{{ url_for('user.user_dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('user.edit_profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+      <a href="{{ url_for('auth.change_password') }}"><i class="fas fa-lock"></i> Security</a>
+      <a href="{{ url_for('user.view_notifications') }}"><i class="fas fa-bell"></i> Alerts</a>
+      <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </nav>
+
+  <div class="container" data-aos="fade-up">
+    <h1>Edit Your Profile</h1>
+
+    <!-- Status message placeholder (can be shown/hidden with JavaScript) -->
+    <div id="statusMessage" class="status-message"></div>
+
+    <div class="profile-img-preview">
+      {% if user.profile_image %}
+        <img id="profileImage" src="{{ url_for('static', filename='uploads/' ~ user.profile_image) }}" alt="Profile Image">
+      {% else %}
+        <img id="profileImage" src="{{ url_for('static', filename='default_profile.png') }}" alt="Profile Image">
+      {% endif %}
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="profileForm">
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input type="text" id="full_name" name="full_name" placeholder="Enter your full name" value="{{ user.full_name }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" value="{{ user.email }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone_number">Phone Number</label>
+        <input type="text" id="phone_number" name="phone_number" placeholder="Enter your phone number" value="{{ user.phone_number }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Profile Image</label>
+        <div class="file-input-wrapper">
+          <label class="file-input-label" for="profile_image">
+            <i class="fas fa-camera"></i>
+            <span id="fileLabel">Choose a profile image</span>
+          </label>
+          <input type="file" id="profile_image" name="profile_image" accept="image/*" onchange="previewImage(this)">
+        </div>
+      </div>
+
+      <button type="submit">
+        <i class="fas fa-save"></i> Update Profile
+      </button>
+    </form>
+
+    <div class="back-link">
+      <a href="{{ url_for('user.user_dashboard') }}">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 800,
+      easing: 'ease-in-out-quad'
+    });
+
+    // Preview selected image before upload
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('profileImage').src = e.target.result;
+          document.getElementById('fileLabel').textContent = input.files[0].name;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Show status message if there's one in the URL
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const status = urlParams.get('status');
+      const message = urlParams.get('message');
+      
+      if (status && message) {
+        const statusElement = document.getElementById('statusMessage');
+        statusElement.textContent = message;
+        statusElement.classList.add(status === 'success' ? 'success' : 'error');
+      }
+    });
+
+    // Auto-dismiss flash messages
+    setTimeout(() => {
+      const messages = document.querySelectorAll('.flash-message');
+      messages.forEach(msg => {
+        msg.style.transition = 'opacity 0.5s ease';
+        msg.style.opacity = '0';
+        setTimeout(() => msg.remove(), 500);
+      });
+    }, 4000);
+  </script>
+</body>
+</html>

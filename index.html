@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corn Disease Detection | AI-Powered Agricultural Solution</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #3a7d44;
+            --secondary: #6aab9c;
+            --accent: #ffc857;
+            --dark: #1d3a2c;
+            --light: #f8f9fa;
+            --text: #333333;
+            --text-light: #6c757d;
+            --gradient: linear-gradient(135deg, var(--primary), var(--dark));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 5%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        nav.scrolled {
+            padding: 0.8rem 5%;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            color: var(--dark);
+            text-decoration: none;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+            color: var(--primary);
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover i {
+            transform: rotate(15deg);
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            margin-left: 1.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .nav-links a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        
+        .nav-cta {
+            margin-left: 2rem;
+            padding: 0.6rem 1.2rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-cta:hover {
+            background-color: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 125, 68, 0.3);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            z-index: 1;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            animation: zoomInOut 20s infinite alternate;
+        }
+        
+        @keyframes zoomInOut {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        
+        .hero-content {
+            width: 50%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            line-height: 1.2;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            color: var(--text);
+            line-height: 1.7;
+            max-width: 90%;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.9rem 2.2rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(58, 125, 68, 0.3);
+        }
+        
+        .cta-button:hover {
+            background-color: var(--dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(58, 125, 68, 0.4);
+        }
+        
+        .cta-button.secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+        
+        .cta-button.secondary:hover {
+            background-color: rgba(58, 125, 68, 0.1);
+        }
+        
+        .hero-image {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-image-container {
+            position: relative;
+            width: 80%;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .hero-image-container img {
+            width: 100%;
+            display: block;
+        }
+        
+        .hero-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(29, 58, 44, 0.7), transparent);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+            color: white;
+        }
+        
+        .hero-image-overlay h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hero-image-overlay p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Stats Section */
+        .stats {
+            padding: 4rem 5%;
+            background-color: white;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            min-width: 200px;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        /* Sections */
+        section {
+            padding: 6rem 5%;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            position: relative;
+            font-weight: 700;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+        
+        /* About Section */
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+        }
+        
+        .about-text {
+            flex: 1;
+        }
+        
+        .about-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .about-text p {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        
+        .about-features {
+            margin-top: 2rem;
+        }
+        
+        .about-feature {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.2rem;
+        }
+        
+        .about-feature i {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            margin-top: 0.2rem;
+        }
+        
+        .about-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .about-image-main {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .about-image-bg {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            background-color: var(--accent);
+            bottom: -20px;
+            right: -20px;
+            border-radius: 15px;
+            opacity: 0.2;
+            z-index: 0;
+        }
+        
+        /* Features Section */
+        .features {
+            background-color: #f5faf6;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-color: rgba(58, 125, 68, 0.2);
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background-color: rgba(58, 125, 68, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.8rem;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            background-color: var(--primary);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .feature-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        
+        /* Solutions Section */
+        .solutions {
+            background: linear-gradient(135deg, var(--dark), var(--primary));
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .solutions::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .solutions .section-title,
+        .solutions .section-subtitle {
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .solutions .section-subtitle {
+            opacity: 0.9;
+        }
+        
+        .solution-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .step:hover {
+            transform: translateX(10px);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, var(--accent), #ffb347);
+            color: var(--dark);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 1.3rem;
+            box-shadow: 0 5px 15px rgba(255, 200, 87, 0.3);
+        }
+        
+        .step-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .step-content p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        /* Demo Section */
+        .demo {
+            text-align: center;
+        }
+        
+        .demo-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-video {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .demo-video video {
+            width: 100%;
+            display: block;
+        }
+        
+        /* Testimonials */
+        .testimonials {
+            background-color: #f5faf6;
+        }
+        
+        .testimonial-slider {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .testimonial-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin: 1rem;
+            text-align: center;
+        }
+        
+        .testimonial-text {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .testimonial-text::before,
+        .testimonial-text::after {
+            content: '"';
+            font-size: 3rem;
+            color: var(--primary);
+            opacity: 0.2;
+            position: absolute;
+        }
+        
+        .testimonial-text::before {
+            top: -20px;
+            left: -15px;
+        }
+        
+        .testimonial-text::after {
+            bottom: -40px;
+            right: -15px;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .author-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 1rem;
+        }
+        
+        .author-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .author-info h4 {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 0.2rem;
+        }
+        
+        .author-info p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        /* Network Section */
+        .network-content {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+        }
+        
+        .network-text {
+            flex: 1;
+        }
+        
+        .network-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .network-text p {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        
+        .network-logos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .network-logo {
+            width: 120px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .network-logo:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .network-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .network-logo:hover img {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+        
+        .network-diagram {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .network-diagram img {
+            max-width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .network-diagram-bg {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            background-color: var(--accent);
+            bottom: -20px;
+            right: -20px;
+            border-radius: 15px;
+            opacity: 0.2;
+            z-index: 0;
+        }
+            
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 5rem;
+            border-radius: 15px;
+            margin: 0 auto;
+            max-width: 1200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .cta-section p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            opacity: 0.9;
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--dark), var(--primary));
+            color: white;
+            padding: 5rem 5% 2rem;
+            position: relative;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .footer-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+        
+        .footer-section p, .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.8rem;
+            display: block;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .footer-section a:hover {
+            color: var(--accent);
+            transform: translateX(5px);
+        }
+        
+        .footer-contact i {
+            margin-right: 10px;
+            color: var(--accent);
+            width: 20px;
+            text-align: center;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            background-color: var(--accent);
+            color: var(--dark);
+            transform: translateY(-5px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .footer-bottom p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .footer-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
+            opacity: 0.05;
+            z-index: 0;
+        }
+        
+        /* Animation classes */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 1200px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 5rem;
+                height: auto;
+                padding-bottom: 5rem;
+            }
+            
+            .hero-content, .hero-image {
+                width: 100%;
+            }
+            
+            .hero-content {
+                margin-bottom: 3rem;
+            }
+            
+            .hero p {
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .about-content, .network-content {
+                flex-direction: column;
+            }
+            
+            .about-image, .network-diagram {
+                margin-top: 3rem;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background-color: white;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding: 2rem 0;
+                transition: all 0.3s ease;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+            
+            .nav-links.active {
+                left: 0;
+            }
+            
+            .nav-links a {
+                margin: 1rem 0;
+                font-size: 1.2rem;
+            }
+            
+            .nav-cta {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-item {
+                min-width: 150px;
+            }
+            
+            .cta-section {
+                padding: 3rem 1.5rem;
+            }
+            
+            .cta-section h2 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .cta-button {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .step {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .step-number {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <a href="{{ url_for('main.index') }}" class="logo">
+            <i class="fas fa-seedling"></i> AGRI AI
+        </a>
+        
+        <div class="nav-links" id="navLinks">
+            <a href="{{ url_for('main.index') }}" class="active"><i class="fas fa-home"></i> Home</a>
+            <a href="#about"><i class="fas fa-info-circle"></i> About</a>
+            <a href="#features"><i class="fas fa-star"></i> Features</a>
+            <a href="#solutions"><i class="fas fa-cogs"></i> How It Works</a>
+            <a href="{{ url_for('auth.register') }}"><i class="fas fa-user-plus"></i> Register</a>
+            <a href="{{ url_for('auth.login') }}" class="nav-cta"><i class="fas fa-sign-in-alt"></i> Login</a>
+        </div>
+        
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+<video autoplay muted loop class="hero-bg">
+    <source src="https://player.vimeo.com/external/479093440.sd.mp4?s=8d2766d49a5297be41c9025806e6b37b6e9a2d66&profile_id=164&oauth2_token_id=57447761" type="video/mp4">
+</video>
+
+        
+        <div class="hero-content" data-aos="fade-right" data-aos-duration="1000">
+            <h1 class="animate__animated animate__fadeInDown">AI-Powered Corn Disease Detection for Modern Farmers</h1>
+            <p>Our advanced deep learning system helps farmers identify corn diseases early with 95% accuracy, providing instant diagnoses and treatment recommendations to protect your crops and maximize yields.</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('auth.register') }}" class="cta-button pulse">
+                    <i class="fas fa-play-circle"></i> Try Demo
+                </a>
+                <a href="#demo" class="cta-button secondary">
+                    <i class="fas fa-video"></i> See How It Works
+                </a>
+            </div>
+        </div>
+        
+        <div class="hero-image" data-aos="fade-left" data-aos-duration="1000">
+            <div class="hero-image-container">
+                <img src="https://sharadpawaragricollege.com/wp-content/uploads/2023/05/agricultural.jpg" alt="Corn field with AI overlay">
+                <!-- <div class="hero-image-overlay">
+                    <h3>Northern Leaf Blight Detected</h3>
+                    <p style="color: whitesmoke;">92% confidence - Immediate treatment recommended</p>
+                </div> -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="0">
+                <div class="stat-number" id="farmersCount">0</div>
+                <div class="stat-label">Farmers Using Our System</div>
+            </div>
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-number" id="accuracyCount">0</div>
+                <div class="stat-label">Detection Accuracy</div>
+            </div>
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="400">
+                <div class="stat-number" id="diseasesCount">0</div>
+                <div class="stat-label">Diseases Identified</div>
+            </div>
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="600">
+                <div class="stat-number" id="yieldCount">0</div>
+                <div class="stat-label">Average Yield Increase</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <h2 class="section-title" data-aos="fade-up">About Our Technology</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Harnessing the power of artificial intelligence to revolutionize agricultural disease detection</p>
+        
+        <div class="about-content">
+            <div class="about-text" data-aos="fade-right">
+                <h3>Protecting Your Crops with Cutting-Edge AI</h3>
+                <p>Corn diseases can devastate yields if not detected early. Our system uses state-of-the-art computer vision and deep learning algorithms to analyze images of corn plants and identify potential diseases with industry-leading accuracy.</p>
+                <p>Developed by agricultural scientists and AI researchers from leading institutions, our solution provides farmers with instant, reliable disease detection right in their fields using just a smartphone camera.</p>
+                
+                <div class="about-features">
+                    <div class="about-feature" data-aos="fade-right" data-aos-delay="100">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Identifies 18 common corn diseases including Gray Leaf Spot, Northern Corn Leaf Blight, and Common Rust</div>
+                    </div>
+                    <div class="about-feature" data-aos="fade-right" data-aos-delay="200">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Continuously improved with new data from our global network of agricultural partners</div>
+                    </div>
+                    <div class="about-feature" data-aos="fade-right" data-aos-delay="300">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Provides localized treatment recommendations based on your region and crop conditions</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-image" data-aos="fade-left">
+                <img src="https://media.springernature.com/lw1200/springer-static/image/art%3A10.1038%2Fs41598-022-10140-z/MediaObjects/41598_2022_10140_Fig1_HTML.jpg" alt="Corn disease detection process" class="about-image-main">
+                <div class="about-image-bg"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2 class="section-title" data-aos="fade-up">Key Features</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Everything you need to protect your crops and maximize your yields</p>
+        
+        <div class="features-grid">
+            <div class="feature-card" data-aos="flip-left" data-aos-delay="0">
+                <div class="feature-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3>Real-Time Image Analysis</h3>
+                <p>Upload photos or scan directly in the field to get instant disease detection results with visual highlights of affected areas.</p>
+            </div>
+            
+            <div class="feature-card" data-aos="flip-left" data-aos-delay="100">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Mobile-Optimized</h3>
+                <p>Works seamlessly on all devices with an intuitive interface designed for field use, even with limited connectivity.</p>
+            </div>
+            
+            <div class="feature-card" data-aos="flip-left" data-aos-delay="200">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Disease Tracking</h3>
+                <p>Monitor disease progression over time and track outbreaks across your fields with our comprehensive dashboard.</p>
+            </div>
+            
+            <div class="feature-card" data-aos="flip-left" data-aos-delay="300">
+                <div class="feature-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3>Treatment Advice</h3>
+                <p>Get science-backed recommendations for treating identified diseases and preventing spread to healthy plants.</p>
+            </div>
+            
+            <div class="feature-card" data-aos="flip-left" data-aos-delay="400">
+                <div class="feature-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3>Cloud Storage</h3>
+                <p>All your scans and results are securely stored in the cloud for future reference and comparative analysis.</p>
+            </div>
+            
+            <div class="feature-card" data-aos="flip-left" data-aos-delay="500">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3>Early Warning System</h3>
+                <p>Receive proactive alerts when disease risk is high based on weather patterns and regional outbreaks.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solutions Section -->
+    <section id="solutions" class="solutions">
+        <h2 class="section-title" data-aos="fade-up">How It Works</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Simple steps to protect your crops and improve your yields</p>
+        
+        <div class="solution-steps">
+            <div class="step" data-aos="fade-right" data-aos-delay="0">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Capture Images</h3>
+                    <p>Take clear photos of corn leaves, stalks, or ears showing symptoms using your smartphone camera or upload existing images from your device.</p>
+                </div>
+            </div>
+            
+            <div class="step" data-aos="fade-left" data-aos-delay="100">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>AI Analysis</h3>
+                    <p>Our deep learning model processes the images in seconds, comparing them against our database of thousands of disease samples to identify potential issues.</p>
+                </div>
+            </div>
+            
+            <div class="step" data-aos="fade-right" data-aos-delay="200">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Instant Results</h3>
+                    <p>Receive immediate feedback on detected diseases with confidence percentages and visual indicators highlighting affected areas on your plants.</p>
+                </div>
+            </div>
+            
+            <div class="step" data-aos="fade-left" data-aos-delay="300">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Actionable Advice</h3>
+                    <p>Get tailored recommendations for treatment options, preventive measures, and when to consult an agricultural expert for severe cases.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <h2 class="section-title" data-aos="fade-up">See It In Action</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Watch how our system helps farmers detect diseases in seconds</p>
+        
+        <div class="demo-container" data-aos="zoom-in">
+            <div class="demo-video">
+                <video controls poster="https://images.unsplash.com/photo-1605000797499-95a51c5269ae?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80">
+                    <source src="https://example.com/demo-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <a href="{{ url_for('auth.register') }}" class="cta-button">
+                <i class="fas fa-play-circle"></i> Try Live Demo
+            </a>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials">
+        <h2 class="section-title" data-aos="fade-up">What Farmers Say</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Trusted by agricultural professionals worldwide</p>
+        
+        <div class="testimonial-slider" data-aos="fade-up">
+            <div class="testimonial-card">
+                <div class="testimonial-text">
+                    This system has completely transformed how we monitor our crops. We caught a Northern Leaf Blight outbreak early and saved nearly 40% of our yield that would have been lost otherwise.
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="John Peterson">
+                    </div>
+                    <div class="author-info">
+                        <h4>John Peterson</h4>
+                        <p>Corn Farmer, Iowa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Network Section -->
+    <section id="network">
+        <h2 class="section-title" data-aos="fade-up">Our Research Network</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Collaborating with leading agricultural institutions to improve detection accuracy</p>
+        
+        <div class="network-content">
+            <div class="network-text" data-aos="fade-right">
+                <h3>Backed by Science, Built for Farmers</h3>
+                <p>We partner with agricultural research institutions, universities, and farming cooperatives to continuously improve our disease detection models and provide the most accurate information.</p>
+                <p>Our AI system learns from thousands of new images every month, constantly improving its ability to detect and diagnose corn diseases under varying conditions.</p>
+                
+                <div class="network-logos">
+                    <div class="network-logo" data-aos="zoom-in" data-aos-delay="100">
+                        <img src="https://thumbs.dreamstime.com/b/closeup-person-holding-corn-cob-their-hands-green-freshly-picked-shot-showcases-intricate-details-terrestrial-plant-314427430.jpg" alt="USDA">
+                    </div>
+                    <div class="network-logo" data-aos="zoom-in" data-aos-delay="200">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBXmJVCj00fdukG_5VYwlSa2qEQ0-EsG-YoQ&s" alt="Iowa State University">
+                    </div>
+                    <div class="network-logo" data-aos="zoom-in" data-aos-delay="300">
+                        <img src="https://thumbs.dreamstime.com/b/corn-leaves-have-holes-eaten-caterpillars-ai-created-content-design-background-instagram-facebook-wall-325557832.jpg" alt="University of Illinois">
+                    </div>
+                    <div class="network-logo" data-aos="zoom-in" data-aos-delay="400">
+                        <img src="https://thumbs.dreamstime.com/b/hands-person-inspecting-corn-leaves-sunlit-field-farmer-holding-372451329.jpg" alt="Purdue University">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="network-diagram" data-aos="fade-left">
+                <img src="https://news.mit.edu/sites/default/files/images/202011/artificial-intelligence.jpg" alt="Network diagram" class="network-diagram-main">
+                <div class="network-diagram-bg"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section>
+        <div class="cta-section" data-aos="zoom-in">
+            <div class="cta-content">
+                <h2>Ready to Protect Your Crops?</h2>
+                <p>Join thousands of farmers who are already using our AI system to detect diseases early and maximize their yields.</p>
+                <a href="{{ url_for('auth.register') }}" class="cta-button pulse">
+                    <i class="fas fa-user-plus"></i> Get Started for Free
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-bg"></div>
+        
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Agri AI</h3>
+                <p>Using artificial intelligence to protect crops and improve agricultural productivity worldwide.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#solutions">How It Works</a>
+                <a href="#testimonials">Testimonials</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Account</h3>
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+                <a href="#">Forgot Password</a>
+                <a href="#">My Dashboard</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p class="footer-contact"><i class="fas fa-envelope"></i> info@agri-ai.com</p>
+                <p class="footer-contact"><i class="fas fa-phone-alt"></i> +1 (555) 123-4567</p>
+                <p class="footer-contact"><i class="fas fa-map-marker-alt"></i> 123 Farm Tech Lane, Agriculture City, AG 12345</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 Agri AI - Corn Disease Detection System. All rights reserved.</p>
+            <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        // Initialize AOS animation library
+        AOS.init({
+            duration: 1000,
+            once: true,
+            easing: 'ease-in-out'
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileMenuBtn.innerHTML = navLinks.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Counter animation for stats
+        function animateCounters() {
+            const counters = [
+                { element: 'farmersCount', target: 12500, suffix: '+' },
+                { element: 'accuracyCount', target: 95, suffix: '%' },
+                { element: 'diseasesCount', target: 18, suffix: '+' },
+                { element: 'yieldCount', target: 30, suffix: '%' }
+            ];
+            
+            const duration = 2000; // Animation duration in ms
+            const interval = 20; // Update interval in ms
+            const steps = duration / interval;
+            
+            counters.forEach(counter => {
+                const element = document.getElementById(counter.element);
+                const increment = counter.target / steps;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= counter.target) {
+                        clearInterval(timer);
+                        current = counter.target;
+                    }
+                    element.textContent = Math.floor(current) + counter.suffix;
+                }, interval);
+            });
+        }
+        
+        // Initialize counters when stats section is in view
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                animateCounters();
+                observer.unobserve(entries[0].target);
+            }
+        }, { threshold: 0.5 });
+        
+        observer.observe(document.querySelector('.stats'));
+        
+        // Set active nav link based on scroll position
+        const sections = document.querySelectorAll('section');
+        const navItems = document.querySelectorAll('.nav-links a');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === `#${current}`) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corn Disease Alerts</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --healthy: #5d9e47;
+            --disease: #e74c3c;
+            --warning: #f39c12;
+            --background: #f5f9f2;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e2c;
+            --text-light: #5a6c5a;
+            --border: #d4e6d1;
+            --highlight: #8bc34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+            line-height: 1.6;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M30,10 Q50,5 70,10 T90,30 Q95,50 90,70 T70,90 Q50,95 30,90 T10,70 Q5,50 10,30 T30,10" fill="none" stroke="%23d4e6d1" stroke-width="0.5"/></svg>');
+            background-size: 100px 100px;
+            min-height: 100vh;
+            padding-top: 70px;
+        }
+
+        /* Corn field background pattern */
+        .corn-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to bottom, 
+                    transparent 95%, 
+                    rgba(139, 195, 74, 0.05) 100%);
+            background-size: 100% 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Animated corn plants */
+        .corn-plant {
+            position: fixed;
+            width: 40px;
+            height: 80px;
+            background: transparent;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%235d9e47"><path d="M12 2L4 12l8 10 8-10-8-10zm0 15.5L7 12l5-5.5 5 5.5-5 5.5z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        .plant-1 { bottom: 0; left: 10%; height: 120px; }
+        .plant-2 { bottom: 0; left: 25%; height: 90px; }
+        .plant-3 { bottom: 0; left: 40%; height: 110px; }
+        .plant-4 { bottom: 0; left: 55%; height: 100px; }
+        .plant-5 { bottom: 0; left: 70%; height: 130px; }
+        .plant-6 { bottom: 0; left: 85%; height: 80px; }
+
+        /* Navbar matching dashboard_admin.html */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-dark);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav .logo {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: var(--healthy);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        nav .logo i {
+            color: var(--highlight);
+        }
+
+        nav a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 1.5rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        nav a:hover {
+            color: var(--healthy);
+            background-color: rgba(93, 158, 71, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav a {
+                margin-right: 0;
+                justify-content: center;
+                width: 100%;
+            }
+        }
+
+        /* Notification page styles */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        h3 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+            font-size: 1.8rem;
+            margin: 2rem 0 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--healthy);
+            border-radius: 2px;
+            transform: scaleX(0);
+            transform-origin: right;
+            animation: headerUnderline 1s ease forwards 0.3s;
+        }
+        
+        @keyframes headerUnderline {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+        
+        /* Form Styles */
+        .notification-form {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) forwards;
+            border-left: 4px solid var(--healthy);
+            border: 1px solid var(--border);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
+            color: var(--text-dark);
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--healthy);
+            box-shadow: 0 0 0 3px rgba(93, 158, 71, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            color: var(--text-light);
+        }
+        
+        .file-input-label:hover {
+            border-color: var(--healthy);
+            background-color: rgba(93, 158, 71, 0.1);
+        }
+        
+        .file-input-label i {
+            margin-right: 0.5rem;
+            color: var(--healthy);
+        }
+        
+        .file-name {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            display: none;
+        }
+        
+        .submit-btn {
+            background: var(--healthy);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .submit-btn:hover {
+            background: #4d8e3a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(93, 158, 71, 0.3);
+        }
+        
+        /* Notifications List */
+        .notifications-list {
+            list-style: none;
+        }
+        
+        .notification-item {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid var(--healthy);
+            border: 1px solid var(--border);
+        }
+        
+        .notification-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .notification-item:nth-child(1) { animation-delay: 0.2s; }
+        .notification-item:nth-child(2) { animation-delay: 0.4s; }
+        .notification-item:nth-child(3) { animation-delay: 0.6s; }
+        .notification-item:nth-child(4) { animation-delay: 0.8s; }
+        .notification-item:nth-child(5) { animation-delay: 1s; }
+        
+        .notification-item strong {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .notification-item p {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: var(--healthy);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .download-btn:hover {
+            background: #4d8e3a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(93, 158, 71, 0.3);
+        }
+        
+        .notification-item small {
+            display: block;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            text-align: right;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 0.5s;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border: 1px dashed var(--border);
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .empty-state h3 {
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: var(--text-light);
+        }
+
+        /* Disease type indicators */
+        .disease-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .common-rust { background: rgba(241, 196, 15, 0.1); color: #f1c40f; border: 1px solid #f1c40f; }
+        .northern-blight { background: rgba(230, 126, 34, 0.1); color: #e67e22; border: 1px solid #e67e22; }
+        .gray-leaf-spot { background: rgba(149, 165, 166, 0.1); color: #95a5a6; border: 1px solid #95a5a6; }
+        .anthracnose { background: rgba(155, 89, 182, 0.1); color: #9b59b6; border: 1px solid #9b59b6; }
+
+        /* Flash messages */
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: auto;
+            max-width: 300px;
+        }
+        
+        .flash-message {
+            padding: 12px 18px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            opacity: 0.95;
+            animation: fadeIn 0.5s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .flash-message.success { 
+            background: rgba(93, 158, 71, 0.9);
+            border-left: 4px solid var(--healthy);
+        }
+        
+        .flash-message.error { 
+            background: rgba(231, 76, 60, 0.9);
+            border-left: 4px solid var(--disease);
+        }
+        
+        .flash-message.warning { 
+            background: rgba(243, 156, 18, 0.9);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .flash-message.info { 
+            background: rgba(52, 152, 219, 0.9);
+            border-left: 4px solid var(--info);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 0.95; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            h3 {
+                font-size: 1.5rem;
+            }
+            
+            .notification-form,
+            .notification-item {
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Corn field background elements -->
+    <div class="corn-pattern"></div>
+    <div class="corn-plant plant-1"></div>
+    <div class="corn-plant plant-2"></div>
+    <div class="corn-plant plant-3"></div>
+    <div class="corn-plant plant-4"></div>
+    <div class="corn-plant plant-5"></div>
+    <div class="corn-plant plant-6"></div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Navbar matching dashboard_admin.html -->
+    <nav data-aos="fade-down">
+        <div class="logo"><i class="fas fa-leaf"></i> CORN DISEASE DETECTION</div>
+        <div>
+            <a href="{{ url_for('admin.admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('admin.admin_notifications') }}"><i class="fas fa-bell"></i> Alerts</a>
+            <a href="{{ url_for('auth.change_password') }}"><i class="fas fa-lock"></i> Security</a>
+            <a href="{{ url_for('admin.edit_profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h3 data-aos="fade-right"><i class="fas fa-bullhorn"></i> New Disease Alert</h3>
+        
+        <form method="POST" enctype="multipart/form-data" class="notification-form" data-aos="fade-up">
+            <div class="form-group">
+                <input type="text" name="title" placeholder="Alert Title (e.g., Rust Outbreak)" required>
+            </div>
+            
+            <div class="form-group">
+                <textarea name="message" placeholder="Enter your disease alert details here..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" id="fileInputLabel">
+                        <i class="fas fa-file-image"></i>
+                        <span>Upload leaf image or report</span>
+                    </label>
+                    <input type="file" name="file" id="fileInput">
+                    <div class="file-name" id="fileName"></div>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn"><i class="fas fa-bell"></i> Send Alert</button>
+        </form>
+        
+        <h3 data-aos="fade-right"><i class="fas fa-history"></i> Previous Disease Alerts</h3>
+        
+        <ul class="notifications-list">
+            {% if notifications|length > 0 %}
+                {% for note in notifications %}
+                    <li class="notification-item" data-aos="fade-up">
+                        <strong><i class="fas fa-exclamation-triangle"></i> {{ note.title }}</strong>
+                        <p>{{ note.message }}</p>
+                        <div style="margin: 0.5rem 0;">
+                            <span class="disease-tag common-rust">Common Rust</span>
+                            <span class="disease-tag northern-blight">Northern Blight</span>
+                        </div>
+                        {% if note.file %}
+                            <a href="{{ url_for('admin.download_file_admin', filename=note.file) }}" class="download-btn">
+                                <i class="fas fa-download"></i> View Image
+                            </a>
+                        {% endif %}
+                        <small><i class="far fa-clock"></i> {{ note.created_at }}</small>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state" data-aos="fade-up">
+                    <i class="fas fa-bell-slash" style="font-size: 3rem; color: var(--healthy); margin-bottom: 1rem;"></i>
+                    <h3>No disease alerts yet</h3>
+                    <p>When you send alerts about disease outbreaks, they'll appear here</p>
+                </div>
+            {% endif %}
+        </ul>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out-quad'
+        });
+        
+        // File input handling
+        const fileInput = document.getElementById('fileInput');
+        const fileInputLabel = document.getElementById('fileInputLabel');
+        const fileName = document.getElementById('fileName');
+
+        fileInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                fileName.textContent = 'Selected file: ' + this.files[0].name;
+                fileName.style.display = 'block';
+                fileInputLabel.innerHTML = '<i class="fas fa-check-circle"></i> Image Selected';
+                fileInputLabel.style.borderColor = 'var(--healthy)';
+                fileInputLabel.style.backgroundColor = 'rgba(93, 158, 71, 0.1)';
+            } else {
+                fileName.style.display = 'none';
+                fileInputLabel.innerHTML = '<i class="fas fa-file-image"></i> Upload leaf image or report';
+                fileInputLabel.style.borderColor = 'var(--border)';
+                fileInputLabel.style.backgroundColor = 'transparent';
+            }
+        });
+
+        // Drag and drop functionality
+        fileInputLabel.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = "var(--healthy);"
+            this.style.backgroundColor = 'rgba(93, 158, 71, 0.1)';
+        });
+
+        fileInputLabel.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            if (!fileInput.files.length) {
+                this.style.borderColor = 'var(--border)';
+                this.style.backgroundColor = 'transparent';
+            }
+        });
+
+        fileInputLabel.addEventListener('drop', function(e) {
+            e.preventDefault();
+            fileInput.files = e.dataTransfer.files;
+            const event = new Event('change');
+            fileInput.dispatchEvent(event);
+        });
+
+        // Auto-dismiss flash messages
+        setTimeout(() => {
+            const messages = document.querySelectorAll('.flash-message');
+            messages.forEach(msg => {
+                msg.style.transition = 'opacity 0.5s ease';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 4000);
+    </script>
+</body>
+</html>
